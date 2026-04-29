@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="VehicalPartsInventorySystem/VehiclePartsInventory.Application.csproj" />
+  <Project Path="VehiclePartsInventory.Api/VehiclePartsInventory.Api.csproj" />
+  <Project Path="VehiclePartsInventory.Domain/VehiclePartsInventory.Domain.csproj" />
+  <Project Path="VehiclePartsInventory.Infrastructure/VehiclePartsInventory.Infrastructure.csproj" />
+</Solution>

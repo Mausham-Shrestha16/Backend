@@ -14,6 +14,10 @@ public class AppDbContext : DbContext
     public DbSet<Vehicle> Vehicles => Set<Vehicle>();
     public DbSet<SalesInvoice> SalesInvoices => Set<SalesInvoice>();
     public DbSet<SalesInvoiceItem> SalesInvoiceItems => Set<SalesInvoiceItem>();
+    public DbSet<Part> Parts => Set<Part>();
+    public DbSet<Vendor> Vendors => Set<Vendor>();
+    public DbSet<PurchaseInvoice> PurchaseInvoices => Set<PurchaseInvoice>();
+    public DbSet<PurchaseInvoiceItem> PurchaseInvoiceItems => Set<PurchaseInvoiceItem>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -69,6 +73,44 @@ public class AppDbContext : DbContext
 
         modelBuilder.Entity<SalesInvoiceItem>()
             .Property(i => i.UnitPrice)
+            .HasColumnType("numeric(18,2)");
+
+        modelBuilder.Entity<Part>()
+            .HasIndex(p => p.PartNumber)
+            .IsUnique();
+
+        modelBuilder.Entity<Part>()
+            .Property(p => p.UnitPrice)
+            .HasColumnType("numeric(18,2)");
+
+        modelBuilder.Entity<Vendor>()
+            .HasIndex(v => v.Email)
+            .IsUnique();
+
+        modelBuilder.Entity<PurchaseInvoice>()
+            .HasOne(pi => pi.Vendor)
+            .WithMany(v => v.PurchaseInvoices)
+            .HasForeignKey(pi => pi.VendorId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<PurchaseInvoice>()
+            .Property(pi => pi.TotalAmount)
+            .HasColumnType("numeric(18,2)");
+
+        modelBuilder.Entity<PurchaseInvoiceItem>()
+            .HasOne(pii => pii.PurchaseInvoice)
+            .WithMany(pi => pi.Items)
+            .HasForeignKey(pii => pii.PurchaseInvoiceId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<PurchaseInvoiceItem>()
+            .HasOne(pii => pii.Part)
+            .WithMany(p => p.PurchaseInvoiceItems)
+            .HasForeignKey(pii => pii.PartId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<PurchaseInvoiceItem>()
+            .Property(pii => pii.UnitPrice)
             .HasColumnType("numeric(18,2)");
     }
 }

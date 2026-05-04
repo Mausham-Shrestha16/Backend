@@ -22,10 +22,12 @@ public static class ApplicationServiceExtensions
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<ICustomerRepository, CustomerRepository>();
         services.AddScoped<IStaffRepository, StaffRepository>();
+        services.AddScoped<IPartRepository, PartRepository>();
 
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<ICustomerService, CustomerService>();
         services.AddScoped<IStaffService, StaffService>();
+        services.AddScoped<IPartService, PartService>();
         services.AddScoped<ITokenService, TokenService>();
 
         return services;

@@ -33,6 +33,7 @@ public class PurchaseInvoiceService : IPurchaseInvoiceService
             throw new Exception("At least one item is required.");
 
         var items = new List<PurchaseInvoiceItem>();
+        var partsToUpdate = new List<Part>();
         decimal total = 0;
 
         foreach (var itemDto in dto.Items)
@@ -41,10 +42,9 @@ public class PurchaseInvoiceService : IPurchaseInvoiceService
                 ?? throw new Exception($"Part with ID {itemDto.PartId} not found.");
 
             part.StockQuantity += itemDto.Quantity;
-            await _partRepository.UpdatePartAsync(part);
+            partsToUpdate.Add(part);
 
-            var lineTotal = itemDto.Quantity * itemDto.UnitPrice;
-            total += lineTotal;
+            total += itemDto.Quantity * itemDto.UnitPrice;
 
             items.Add(new PurchaseInvoiceItem
             {
@@ -60,14 +60,14 @@ public class PurchaseInvoiceService : IPurchaseInvoiceService
         {
             InvoiceNumber = invoiceNumber,
             VendorId = dto.VendorId,
-            PurchaseDate = dto.PurchaseDate,
+            PurchaseDate = DateTime.SpecifyKind(dto.PurchaseDate, DateTimeKind.Utc),
             TotalAmount = total,
             Notes = dto.Notes,
             Items = items,
             CreatedAt = DateTime.UtcNow
         };
 
-        await _invoiceRepository.AddAsync(invoice);
+        await _invoiceRepository.AddWithStockUpdateAsync(invoice, partsToUpdate);
         var saved = await _invoiceRepository.GetByIdAsync(invoice.Id)
             ?? throw new Exception("Failed to retrieve saved invoice.");
 

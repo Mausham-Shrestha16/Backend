@@ -86,10 +86,7 @@ public class CustomerService : ICustomerService
 
     public async Task<List<CustomerSearchResultDto>> SearchCustomersAsync(string keyword)
     {
-        if (string.IsNullOrWhiteSpace(keyword))
-            throw new Exception("Search keyword is required.");
-
-        return await _customerRepository.SearchCustomersAsync(keyword);
+        return await _customerRepository.SearchCustomersAsync(keyword ?? "");
     }
 
     public async Task<CustomerReportDto> GetCustomerReportAsync()

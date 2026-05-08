@@ -24,12 +24,14 @@ public static class ApplicationServiceExtensions
         services.AddScoped<IStaffRepository, StaffRepository>();
         services.AddScoped<IPartRepository, PartRepository>();
         services.AddScoped<IPurchaseInvoiceRepository, PurchaseInvoiceRepository>();
+        services.AddScoped<IVendorRepository, VendorRepository>();
 
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<ICustomerService, CustomerService>();
         services.AddScoped<IStaffService, StaffService>();
         services.AddScoped<IPartService, PartService>();
         services.AddScoped<IPurchaseInvoiceService, PurchaseInvoiceService>();
+        services.AddScoped<IVendorService, VendorService>();
         services.AddScoped<ITokenService, TokenService>();
 
         return services;

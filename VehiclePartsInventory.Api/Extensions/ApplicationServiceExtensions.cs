@@ -25,6 +25,7 @@ public static class ApplicationServiceExtensions
         services.AddScoped<IPartRepository, PartRepository>();
         services.AddScoped<IPurchaseInvoiceRepository, PurchaseInvoiceRepository>();
         services.AddScoped<IVendorRepository, VendorRepository>();
+        services.AddScoped<ISalesInvoiceRepository, SalesInvoiceRepository>();
 
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<ICustomerService, CustomerService>();
@@ -32,6 +33,10 @@ public static class ApplicationServiceExtensions
         services.AddScoped<IPartService, PartService>();
         services.AddScoped<IPurchaseInvoiceService, PurchaseInvoiceService>();
         services.AddScoped<IVendorService, VendorService>();
+        services.AddScoped<ISalesInvoiceService, SalesInvoiceService>();
+        services.AddScoped<IFinancialReportService, FinancialReportService>();
+        services.AddScoped<IEmailService, EmailService>();
+        services.AddScoped<IAlertService, AlertService>();
         services.AddScoped<ITokenService, TokenService>();
 
         return services;

@@ -1,6 +1,6 @@
 <Solution>
-  <Project Path="VehicalPartsInventorySystem/VehiclePartsInventory.Application.csproj" />
+  <Project Path="VechicelPartsInventory.applications/VehiclePartsInventory.Application.csproj" Id="d950f00a-4f89-4e5f-81fb-e150c071a570" />
   <Project Path="VehiclePartsInventory.Api/VehiclePartsInventory.Api.csproj" />
-  <Project Path="VehiclePartsInventory.Domain/VehiclePartsInventory.Domain.csproj" />
-  <Project Path="VehiclePartsInventory.Infrastructure/VehiclePartsInventory.Infrastructure.csproj" />
+  <Project Path="VehiclePartsInventory.Domains/VehiclePartsInventory.Domain.csproj" Id="2833a02d-4a3a-4958-aaf4-8c7d3ee00457" />
+  <Project Path="VehiclePartsInventory.Infrastructures/VehiclePartsInventory.Infrastructure.csproj" Id="ce860eb3-283a-4682-b275-074f53f17747" />
 </Solution>

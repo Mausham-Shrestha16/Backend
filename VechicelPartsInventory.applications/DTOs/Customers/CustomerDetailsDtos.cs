@@ -59,4 +59,3 @@ public class CustomerInvoiceItemHistoryDto
 
     public decimal SubTotal { get; set; }
 }
-//Gaurav Dai ko part

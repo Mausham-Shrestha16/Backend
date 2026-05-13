@@ -33,10 +33,23 @@ public class PurchaseInvoiceRepository : IPurchaseInvoiceRepository
             .FirstOrDefaultAsync(pi => pi.Id == id);
     }
 
-    public async Task AddAsync(PurchaseInvoice invoice)
+    public async Task AddWithStockUpdateAsync(PurchaseInvoice invoice, List<Part> updatedParts)
     {
-        _context.PurchaseInvoices.Add(invoice);
-        await _context.SaveChangesAsync();
+        using var transaction = await _context.Database.BeginTransactionAsync();
+        try
+        {
+            foreach (var part in updatedParts)
+                _context.Parts.Update(part);
+
+            _context.PurchaseInvoices.Add(invoice);
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
     }
 
     public async Task<string> GenerateInvoiceNumberAsync()

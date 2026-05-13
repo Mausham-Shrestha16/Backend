@@ -27,6 +27,7 @@ public class VendorRepository : IVendorRepository
     public async Task<bool> EmailExistsAsync(string email)
     {
         var normalized = email.Trim().ToLower();
+        if (string.IsNullOrEmpty(normalized)) return false;
         return await _context.Vendors.AnyAsync(v => v.Email == normalized);
     }
 

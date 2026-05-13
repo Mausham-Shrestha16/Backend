@@ -85,7 +85,8 @@ public class AppDbContext : DbContext
 
         modelBuilder.Entity<Vendor>()
             .HasIndex(v => v.Email)
-            .IsUnique();
+            .IsUnique()
+            .HasFilter("\"Email\" != ''");
 
         modelBuilder.Entity<PurchaseInvoice>()
             .HasOne(pi => pi.Vendor)

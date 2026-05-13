@@ -33,9 +33,11 @@ public class CustomerRepository : ICustomerRepository
     public async Task<CustomerDetailsDto?> GetCustomerDetailsAsync(int customerId)
     {
         return await _context.Customers
+            .AsNoTracking()
             .Include(c => c.AppUser)
             .Include(c => c.Vehicles)
             .Include(c => c.SalesInvoices)
+                .ThenInclude(s => s.Items)
             .Where(c => c.Id == customerId)
             .Select(c => new CustomerDetailsDto
             {
@@ -55,15 +57,25 @@ public class CustomerRepository : ICustomerRepository
                     Year = v.Year
                 }).ToList(),
 
-                PurchaseHistory = c.SalesInvoices.Select(s => new CustomerInvoiceHistoryDto
-                {
-                    InvoiceId = s.Id,
-                    InvoiceNumber = s.InvoiceNumber,
-                    InvoiceDate = s.InvoiceDate,
-                    TotalAmount = s.TotalAmount,
-                    PaidAmount = s.PaidAmount,
-                    CreditAmount = s.TotalAmount - s.PaidAmount
-                }).ToList()
+                PurchaseHistory = c.SalesInvoices
+                    .OrderByDescending(s => s.InvoiceDate)
+                    .Select(s => new CustomerInvoiceHistoryDto
+                    {
+                        InvoiceId = s.Id,
+                        InvoiceNumber = s.InvoiceNumber,
+                        InvoiceDate = s.InvoiceDate,
+                        TotalAmount = s.TotalAmount,
+                        PaidAmount = s.PaidAmount,
+                        CreditAmount = s.TotalAmount - s.PaidAmount,
+
+                        Items = s.Items.Select(i => new CustomerInvoiceItemHistoryDto
+                        {
+                            PartName = i.PartName,
+                            Quantity = i.Quantity,
+                            UnitPrice = i.UnitPrice,
+                            SubTotal = i.Quantity * i.UnitPrice
+                        }).ToList()
+                    }).ToList()
             })
             .FirstOrDefaultAsync();
     }
@@ -73,6 +85,7 @@ public class CustomerRepository : ICustomerRepository
         var searchKeyword = keyword.Trim().ToLower();
 
         return await _context.Customers
+            .AsNoTracking()
             .Include(c => c.AppUser)
             .Include(c => c.Vehicles)
             .Where(c =>
@@ -98,24 +111,53 @@ public class CustomerRepository : ICustomerRepository
     {
         var totalCustomers = await _context.Customers.CountAsync();
 
-        var regularCustomers = await _context.Customers
-            .Where(c => c.SalesInvoices.Count >= 3)
-            .CountAsync();
+        var customerReportData = await _context.Customers
+            .AsNoTracking()
+            .Include(c => c.AppUser)
+            .Select(c => new CustomerReportItemDto
+            {
+                CustomerId = c.Id,
+                FullName = c.AppUser.FullName,
+                Email = c.AppUser.Email,
+                PhoneNumber = c.AppUser.PhoneNumber,
 
-        var highSpenders = await _context.Customers
-            .Where(c => c.SalesInvoices.Sum(s => s.TotalAmount) >= 5000)
-            .CountAsync();
+                InvoiceCount = c.SalesInvoices.Count(),
 
-        var pendingCreditCustomers = await _context.Customers
-            .Where(c => c.SalesInvoices.Any(s => s.TotalAmount > s.PaidAmount))
-            .CountAsync();
+                TotalSpent = c.SalesInvoices
+                    .Sum(s => (decimal?)s.TotalAmount) ?? 0,
+
+                PendingCreditAmount = c.SalesInvoices
+                    .Where(s => s.TotalAmount > s.PaidAmount)
+                    .Sum(s => (decimal?)(s.TotalAmount - s.PaidAmount)) ?? 0
+            })
+            .ToListAsync();
+
+        var regularCustomerList = customerReportData
+            .Where(c => c.InvoiceCount >= 3)
+            .OrderByDescending(c => c.InvoiceCount)
+            .ToList();
+
+        var highSpenderList = customerReportData
+            .Where(c => c.TotalSpent >= 5000)
+            .OrderByDescending(c => c.TotalSpent)
+            .ToList();
+
+        var pendingCreditCustomerList = customerReportData
+            .Where(c => c.PendingCreditAmount > 0)
+            .OrderByDescending(c => c.PendingCreditAmount)
+            .ToList();
 
         return new CustomerReportDto
         {
             TotalCustomers = totalCustomers,
-            RegularCustomers = regularCustomers,
-            HighSpenders = highSpenders,
-            PendingCreditCustomers = pendingCreditCustomers
+
+            RegularCustomers = regularCustomerList.Count,
+            HighSpenders = highSpenderList.Count,
+            PendingCreditCustomers = pendingCreditCustomerList.Count,
+
+            RegularCustomerList = regularCustomerList,
+            HighSpenderList = highSpenderList,
+            PendingCreditCustomerList = pendingCreditCustomerList
         };
     }
 }

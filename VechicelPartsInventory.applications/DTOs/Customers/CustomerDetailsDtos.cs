@@ -45,4 +45,18 @@ public class CustomerInvoiceHistoryDto
     public decimal PaidAmount { get; set; }
 
     public decimal CreditAmount { get; set; }
+
+    public List<CustomerInvoiceItemHistoryDto> Items { get; set; } = new();
 }
+
+public class CustomerInvoiceItemHistoryDto
+{
+    public string PartName { get; set; } = string.Empty;
+
+    public int Quantity { get; set; }
+
+    public decimal UnitPrice { get; set; }
+
+    public decimal SubTotal { get; set; }
+}
+//Gaurav Dai ko part
